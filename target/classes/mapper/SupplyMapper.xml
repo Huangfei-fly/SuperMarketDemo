@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.Luo.dao.SupplyMapper">
+  <resultMap id="BaseResultMap" type="com.Luo.bean.Supply">
+    <result column="warehouse_ID" jdbcType="VARCHAR" property="warehouseId" />
+    <result column="shop_ID" jdbcType="VARCHAR" property="shopId" />
+    <result column="com_ID" jdbcType="VARCHAR" property="comId" />
+    <result column="supply_Num" jdbcType="INTEGER" property="supplyNum" />
+  </resultMap>
+  <resultMap id="WithAllResultMap" type="com.Luo.bean.Supply">
+    <result column="warehouse_ID" jdbcType="VARCHAR" property="warehouseId" />
+    <result column="shop_ID" jdbcType="VARCHAR" property="shopId" />
+    <result column="com_ID" jdbcType="VARCHAR" property="comId" />
+    <result column="supply_Num" jdbcType="INTEGER" property="supplyNum" />
+    <association property="shop" javaType="com.Luo.bean.Shop">
+    	<id column="shop_ID" property="shopId"/>
+    	<result column="shop_Name" property="shopName"/>
+    	<result column="address" property="address"/>
+    	<result column="shop_Name" property="shopName"/>
+    	<result column="phone" property="phone"/>
+    </association>
+    <association property="commodity" javaType="com.Luo.bean.Commodity">
+    	<id column="com_ID" property="comId"/>
+    	<result column="com_Name" property="comName"/>
+    	<result column="sell_Price" property="sellPrice"/>
+    	<result column="purchase_Price" property="purchasePrice"/>
+    	<result column="stock_Num" property="stockNum"/>
+    	<result column="warning_Num" property="warningNum"/>
+    </association>
+    <association property="warehouse" javaType="com.Luo.bean.Warehouse">
+    	<id column="warehouse_ID" property="warehouseId"/>
+    	<result column="warehouse_Name" property="warehouseName"/>
+    	<result column="address" property="address"/>
+    	<result column="phone" property="phone"/>
+    </association>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    warehouse_ID, shop_ID, com_ID, supply_Num
+  </sql>
+  <sql id="WithAll_Column_List">
+    supply.warehouse_ID, supply.shop_ID, supply.com_ID, supply_Num,warehouse_Name,shop_Name,com_Name
+  </sql>
+  <select id="selectByExample" parameterType="com.Luo.bean.SupplyExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from supply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectWithAll" parameterType="com.Luo.bean.Supply" resultMap="WithAllResultMap">
+    select
+    <include refid="WithAll_Column_List" />
+    from supply
+    	inner join commodity on supply.com_ID=commodity.com_ID
+    	inner join shop on supply.shop_ID=shop.shop_ID
+    	inner join warehouse on supply.warehouse_ID=warehouse.warehouse_ID
+  </select>
+  <delete id="deleteByExample" parameterType="com.Luo.bean.SupplyExample">
+    delete from supply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.Luo.bean.Supply">
+    insert into supply (warehouse_ID, shop_ID, com_ID, 
+      supply_Num)
+    values (#{warehouseId,jdbcType=VARCHAR}, #{shopId,jdbcType=VARCHAR}, #{comId,jdbcType=VARCHAR}, 
+      #{supplyNum,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.Luo.bean.Supply">
+    insert into supply
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="warehouseId != null">
+        warehouse_ID,
+      </if>
+      <if test="shopId != null">
+        shop_ID,
+      </if>
+      <if test="comId != null">
+        com_ID,
+      </if>
+      <if test="supplyNum != null">
+        supply_Num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="warehouseId != null">
+        #{warehouseId,jdbcType=VARCHAR},
+      </if>
+      <if test="shopId != null">
+        #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="comId != null">
+        #{comId,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyNum != null">
+        #{supplyNum,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.Luo.bean.SupplyExample" resultType="java.lang.Long">
+    select count(*) from supply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update supply
+    <set>
+      <if test="record.warehouseId != null">
+        warehouse_ID = #{record.warehouseId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.shopId != null">
+        shop_ID = #{record.shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.comId != null">
+        com_ID = #{record.comId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.supplyNum != null">
+        supply_Num = #{record.supplyNum,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update supply
+    set warehouse_ID = #{record.warehouseId,jdbcType=VARCHAR},
+      shop_ID = #{record.shopId,jdbcType=VARCHAR},
+      com_ID = #{record.comId,jdbcType=VARCHAR},
+      supply_Num = #{record.supplyNum,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

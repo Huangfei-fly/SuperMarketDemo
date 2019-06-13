@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.Luo.dao.BillMapper">
+  <resultMap id="BaseResultMap" type="com.Luo.bean.Bill">
+    <result column="shop_ID" jdbcType="VARCHAR" property="shopId" />
+    <result column="cashier_ID" jdbcType="VARCHAR" property="cashierId" />
+    <result column="com_ID" jdbcType="VARCHAR" property="comId" />
+    <result column="sell_Num" jdbcType="INTEGER" property="sellNum" />
+  </resultMap>
+  <resultMap id="WithAllResultMap" type="com.Luo.bean.Bill">
+    <result column="shop_ID" jdbcType="VARCHAR" property="shopId" />
+    <result column="cashier_ID" jdbcType="VARCHAR" property="cashierId" />
+    <result column="com_ID" jdbcType="VARCHAR" property="comId" />
+    <result column="sell_Num" jdbcType="INTEGER" property="sellNum" />
+    <association property="shop" javaType="com.Luo.bean.Shop">
+    	<id column="shop_ID" property="shopId"/>
+    	<result column="shop_Name" property="shopName"/>
+    	<result column="address" property="address"/>
+    	<result column="shop_Name" property="shopName"/>
+    	<result column="phone" property="phone"/>
+    </association>
+    <association property="cashier" javaType="com.Luo.bean.Cashier">
+    	<id column="cashier_ID" property="cashierId"/>
+    	<result column="cashier_Name" property="cashierName"/>
+    	<result column="gender" property="gender"/>
+    	<result column="birthday" property="birthday"/>
+    	<result column="phone" property="phone"/>
+    </association>
+    <association property="commodity" javaType="com.Luo.bean.Commodity">
+    	<id column="com_ID" property="comId"/>
+    	<result column="com_Name" property="comName"/>
+    	<result column="sell_Price" property="sellPrice"/>
+    	<result column="purchase_Price" property="purchasePrice"/>
+    	<result column="stock_Num" property="stockNum"/>
+    	<result column="warning_Num" property="warningNum"/>
+    </association>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    shop_ID, cashier_ID, com_ID, sell_Num
+  </sql>
+  <sql id="WithAll_Column_List">
+    bill.shop_ID, bill.cashier_ID, bill.com_ID, sell_Num,com_Name,sell_Price,cashier_Name,shop_Name
+  </sql>
+  <select id="selectWithAll" parameterType="com.Luo.bean.Bill" resultMap="WithAllResultMap">
+    select
+    <include refid="WithAll_Column_List" />
+    from bill
+    	inner join commodity on bill.com_ID=commodity.com_ID
+    	inner join shop on bill.shop_ID=shop.shop_ID
+    	inner join cashier on bill.cashier_ID=cashier.cashier_ID
+  </select>
+  
+  <select id="selectByCa" parameterType="com.Luo.bean.Bill" resultMap="WithAllResultMap">
+    select 
+    <include refid="WithAll_Column_List" />
+    from bill
+    	inner join commodity on bill.com_ID=commodity.com_ID
+    	inner join shop on bill.shop_ID=shop.shop_ID
+    	inner join cashier on bill.cashier_ID=cashier.cashier_ID
+    where bill.cashier_ID = #{cashierId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByExample" parameterType="com.Luo.bean.BillExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from bill
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.Luo.bean.BillExample">
+    delete from bill
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.Luo.bean.Bill">
+    insert into bill (shop_ID, cashier_ID, com_ID, 
+      sell_Num)
+    values (#{shopId,jdbcType=VARCHAR}, #{cashierId,jdbcType=VARCHAR}, #{comId,jdbcType=VARCHAR}, 
+      #{sellNum,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.Luo.bean.Bill">
+    insert into bill
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="shopId != null">
+        shop_ID,
+      </if>
+      <if test="cashierId != null">
+        cashier_ID,
+      </if>
+      <if test="comId != null">
+        com_ID,
+      </if>
+      <if test="sellNum != null">
+        sell_Num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="shopId != null">
+        #{shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="cashierId != null">
+        #{cashierId,jdbcType=VARCHAR},
+      </if>
+      <if test="comId != null">
+        #{comId,jdbcType=VARCHAR},
+      </if>
+      <if test="sellNum != null">
+        #{sellNum,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.Luo.bean.BillExample" resultType="java.lang.Long">
+    select count(*) from bill
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update bill
+    <set>
+      <if test="record.shopId != null">
+        shop_ID = #{record.shopId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cashierId != null">
+        cashier_ID = #{record.cashierId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.comId != null">
+        com_ID = #{record.comId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sellNum != null">
+        sell_Num = #{record.sellNum,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update bill
+    set shop_ID = #{record.shopId,jdbcType=VARCHAR},
+      cashier_ID = #{record.cashierId,jdbcType=VARCHAR},
+      com_ID = #{record.comId,jdbcType=VARCHAR},
+      sell_Num = #{record.sellNum,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>
